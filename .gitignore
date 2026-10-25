@@ -10,3 +10,4 @@ venv/
 *.xls
 *.csv
 !data/.gitkeep
+data/report.json

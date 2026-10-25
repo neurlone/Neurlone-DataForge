@@ -65,8 +65,8 @@ def get_report(frame: pd.DataFrame) -> dict[str, Any]:
     """Return compact, JSON-serializable summary statistics."""
     return {
         "rows": len(frame),
-"columns": len(frame.columns),
-"missing_cells": frame.isna().sum().sum(),
+        "columns": len(frame.columns),
+        "missing_cells": int(frame.isna().sum().sum()),
         "duplicate_rows": int(frame.duplicated().sum()),
         "missing_by_column": {
             str(column): int(count)
@@ -104,8 +104,10 @@ def clean_data(
     if missing == "drop":
         cleaned = cleaned.dropna(axis=0, how="any")
     elif missing == "fill":
-        cleaned = cleaned.fillna(fill_value)
-
+        for column in cleaned.columns:
+            if cleaned[column].isna().any():
+                cleaned[column] = cleaned[column].astype("object")
+                cleaned[column] = cleaned[column].fillna(fill_value)
     if duplicates == "first":
         cleaned = cleaned.drop_duplicates(keep="first")
     elif duplicates == "last":
